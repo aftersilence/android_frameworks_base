@@ -141,6 +141,10 @@ public class BluetoothTetheringDataTracker implements NetworkStateTracker {
         return true;
     }
 
+    /* TODO */
+    public void captivePortalCheckComplete() {
+    }
+
     /**
      * @return true - If are we currently tethered with another device.
      */
