@@ -1735,17 +1735,18 @@ public class BluetoothService extends IBluetooth.Stub {
         }
     };
 
-    private void registerForAirplaneMode(IntentFilter filter) {
+    @SuppressWarnings("deprecation")
+	private void registerForAirplaneMode(IntentFilter filter) {
         final ContentResolver resolver = mContext.getContentResolver();
         final String airplaneModeRadios = Settings.System.getString(resolver,
-                Settings.System.AIRPLANE_MODE_RADIOS);
+                Settings.Global.AIRPLANE_MODE_RADIOS);
         final String toggleableRadios = Settings.System.getString(resolver,
-                Settings.System.AIRPLANE_MODE_TOGGLEABLE_RADIOS);
+                Settings.Global.AIRPLANE_MODE_TOGGLEABLE_RADIOS);
 
         mIsAirplaneSensitive = airplaneModeRadios == null ? true :
-                airplaneModeRadios.contains(Settings.System.RADIO_BLUETOOTH);
+                airplaneModeRadios.contains(Settings.Global.RADIO_BLUETOOTH);
         mIsAirplaneToggleable = toggleableRadios == null ? false :
-                toggleableRadios.contains(Settings.System.RADIO_BLUETOOTH);
+                toggleableRadios.contains(Settings.Global.RADIO_BLUETOOTH);
 
         if (mIsAirplaneSensitive) {
             filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
@@ -1755,7 +1756,7 @@ public class BluetoothService extends IBluetooth.Stub {
     /* Returns true if airplane mode is currently on */
     /*package*/ final boolean isAirplaneModeOn() {
         return Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.AIRPLANE_MODE_ON, 0) == 1;
+                Settings.Global.AIRPLANE_MODE_ON, 0) == 1;
     }
 
     /* Broadcast the Uuid intent */

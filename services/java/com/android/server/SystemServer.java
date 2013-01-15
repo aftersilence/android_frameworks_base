@@ -374,7 +374,7 @@ class ServerThread extends Thread {
                     bluetooth.initAfterA2dpRegistration();
                 }
 
-                int bluetoothOn = Settings.Secure.getInt(mContentResolver,
+                int bluetoothOn = Settings.Global.getInt(mContentResolver,
                     Settings.Global.BLUETOOTH_ON, 0);
                 if (bluetoothOn != 0) {
                     bluetooth.enable();
