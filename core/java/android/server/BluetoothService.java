@@ -2759,10 +2759,11 @@ public class BluetoothService extends IBluetooth.Stub {
     private void readIncomingConnectionState() {
         synchronized(mIncomingConnections) {
             FileInputStream fstream = null;
+            BufferedReader file = null;
             try {
               fstream = new FileInputStream(INCOMING_CONNECTION_FILE);
               DataInputStream in = new DataInputStream(fstream);
-              BufferedReader file = new BufferedReader(new InputStreamReader(in));
+              file = new BufferedReader(new InputStreamReader(in));
               String line;
               while((line = file.readLine()) != null) {
                   line = line.trim();
@@ -2785,6 +2786,13 @@ public class BluetoothService extends IBluetooth.Stub {
                     } catch (IOException e) {
                         // Ignore
                     }
+                }
+                if (file != null) {
+                	try {
+                		file.close();
+                	} catch (IOException e) {
+                		// Ignore
+                	}
                 }
             }
         }
