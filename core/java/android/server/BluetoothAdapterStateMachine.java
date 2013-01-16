@@ -76,7 +76,7 @@ import java.io.PrintWriter;
  */
 final class BluetoothAdapterStateMachine extends StateMachine {
     private static final String TAG = "BluetoothAdapterStateMachine";
-    private static final boolean DBG = false;
+    private static final boolean DBG = true;
 
     // Message(what) to take an action
     //
