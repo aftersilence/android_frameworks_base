@@ -306,9 +306,10 @@ final class BluetoothAdapterStateMachine extends StateMachine {
             }
 
             // try to start event loop, give 2 attempts
-            int retryCount = 2;
+            int retryCount = 3;
             boolean eventLoopStarted = false;
             while ((retryCount-- > 0) && !eventLoopStarted) {
+                log("Trying to start EventLoop, attempt " + (3 - retryCount));
                 mEventLoop.start();
                 // it may take a moment for the other thread to do its
                 // thing.  Check periodically for a while.
@@ -319,7 +320,7 @@ final class BluetoothAdapterStateMachine extends StateMachine {
                         break;
                     }
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(200);
                     } catch (InterruptedException e) {
                         log("prepareBluetooth sleep interrupted: " + pollCount);
                         break;
