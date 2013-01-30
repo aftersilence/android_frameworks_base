@@ -27,11 +27,8 @@ import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
 
-import com.android.internal.util.IState;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
-
-import java.io.PrintWriter;
 
 /**
  * Bluetooth Adapter StateMachine
@@ -842,23 +839,6 @@ final class BluetoothAdapterStateMachine extends StateMachine {
         transitionTo(mHotOff);
         deferMessage(obtainMessage(TURN_COLD));
         deferMessage(obtainMessage(what, obj));
-    }
-
-    private void dump(PrintWriter pw) {
-        IState currentState = getCurrentState();
-        if (currentState == mPowerOff) {
-            pw.println("Bluetooth OFF - power down\n");
-        } else if (currentState == mWarmUp) {
-            pw.println("Bluetooth OFF - warm up\n");
-        } else if (currentState == mHotOff) {
-            pw.println("Bluetooth OFF - hot but off\n");
-        } else if (currentState == mSwitching) {
-            pw.println("Bluetooth Switching\n");
-        } else if (currentState == mBluetoothOn) {
-            pw.println("Bluetooth ON\n");
-        } else {
-            pw.println("ERROR: Bluetooth UNKNOWN STATE ");
-        }
     }
 
     private static void log(String msg) {
