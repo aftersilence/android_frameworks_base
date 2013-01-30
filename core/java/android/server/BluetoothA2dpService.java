@@ -372,7 +372,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
     public synchronized boolean suspendSink(BluetoothDevice device) {
         mContext.enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM,
                             "Need BLUETOOTH_ADMIN permission");
-        if (DBG) log("suspendSink(" + device + "), mTargetA2dpState: "+mTargetA2dpState);
+        if (DBG) log("suspendSink(" + device + "), TargetA2dpState: " + BluetoothA2dp.stateToString(mTargetA2dpState));
         if (device == null || mAudioDevices == null) {
             return false;
         }
@@ -389,7 +389,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
     public synchronized boolean resumeSink(BluetoothDevice device) {
         mContext.enforceCallingOrSelfPermission(BLUETOOTH_ADMIN_PERM,
                             "Need BLUETOOTH_ADMIN permission");
-        if (DBG) log("resumeSink(" + device + "), mTargetA2dpState: "+mTargetA2dpState);
+        if (DBG) log("resumeSink(" + device + "), TargetA2dpState: " + BluetoothA2dp.stateToString(mTargetA2dpState));
         if (device == null || mAudioDevices == null) {
             return false;
         }
@@ -486,7 +486,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
 
         if (name.equals(PROPERTY_STATE)) {
             int state = convertBluezSinkStringToState(propValues[1]);
-            log("A2DP: onSinkPropertyChanged newState is: " + state + "mPlayingA2dpDevice: " + mPlayingA2dpDevice);
+            log("A2DP: onSinkPropertyChanged newState is: " + BluetoothA2dp.stateToString(state) + " mPlayingA2dpDevice: " + mPlayingA2dpDevice);
 
             if (mAudioDevices.get(device) == null) {
                 // This is for an incoming connection for a device not known to us.
@@ -547,7 +547,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
         intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT);
         mContext.sendBroadcast(intent, BLUETOOTH_PERM);
 
-        if (DBG) log("A2DP Playing state : device: " + device + " State:" + prevState + "->" + state);
+        if (DBG) log("A2DP Playing state : device: " + device + " State: " + BluetoothA2dp.stateToString(prevState) + " -> " + BluetoothA2dp.stateToString(state));
     }
 
     private void adjustOtherSinkPriorities(BluetoothDevice connectedDevice) {
@@ -608,7 +608,7 @@ public class BluetoothA2dpService extends IBluetoothA2dp.Stub {
             intent.addFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY_BEFORE_BOOT);
             mContext.sendBroadcast(intent, BLUETOOTH_PERM);
 
-            if (DBG) log("A2DP state : device: " + device + " State:" + prevState + "->" + state);
+            if (DBG) log("A2DP device: " + device + " State: " + BluetoothA2dp.stateToString(prevState) + " -> " + BluetoothA2dp.stateToString(state));
 
             mBluetoothService.sendConnectionStateChange(device, BluetoothProfile.A2DP, state,
                                                         prevState);

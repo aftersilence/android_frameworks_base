@@ -565,6 +565,36 @@ public final class BluetoothAdapter {
         return null;
     }
 
+    /** @hide */
+    public static String getStateName(int state) {
+        switch (state) {
+            case STATE_OFF:
+                return "STATE_OFF";
+            case STATE_TURNING_ON:
+                return "STATE_TURNING_ON";
+            case STATE_ON:
+                return "STATE_ON";
+            case STATE_TURNING_OFF:
+                return "STATE_TURNING_OFF";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
+    /** @hide */
+    public static String getScanMode(int mode) {
+        switch (mode) {
+            case SCAN_MODE_NONE:
+                return "SCAN_MODE_NONE";
+            case SCAN_MODE_CONNECTABLE:
+                return "SCAN_MODE_CONNECTABLE";
+            case SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+                return "SCAN_MODE_CONNECTABLE_DISCOVERABLE";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
     /**
      * Set the friendly Bluetooth name of the local Bluetooth adapter.
      * <p>This name is visible to remote Bluetooth devices.

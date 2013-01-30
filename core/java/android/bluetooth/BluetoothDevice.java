@@ -742,6 +742,20 @@ public final class BluetoothDevice implements Parcelable {
         return BOND_NONE;
     }
 
+    /** @hide */
+    public static String getBondStateName(int state) {
+        switch (state) {
+            case BOND_NONE:
+                return "BOND_NONE";
+            case BOND_BONDING:
+                return "BOND_BONDING";
+            case BOND_BONDED:
+                return "BOND_BONDED";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
     /**
      * Get the Bluetooth class of the remote device.
      * <p>Requires {@link android.Manifest.permission#BLUETOOTH}.
