@@ -85,12 +85,14 @@ public final class BluetoothDeviceProfileState extends StateMachine {
     public static final int CONNECT_OTHER_PROFILES = 103;
     private static final int CONNECTION_ACCESS_REQUEST_REPLY = 104;
     private static final int CONNECTION_ACCESS_REQUEST_EXPIRY = 105;
+    private static final int UNPAIR_COMPLETE = 106;
 
     public static final int CONNECT_OTHER_PROFILES_DELAY = 4000; // 4 secs
     private static final int CONNECTION_ACCESS_REQUEST_EXPIRY_TIMEOUT = 7000; // 7 secs
     private static final int CONNECTION_ACCESS_UNDEFINED = -1;
     private static final long INIT_INCOMING_REJECT_TIMER = 1000; // 1 sec
     private static final long MAX_INCOMING_REJECT_TIMER = 3600 * 1000 * 4; // 4 hours
+    private static final int UNPAIR_COMPLETE_DELAY = 2000; // 2 secs delay in bluez
 
     private static final String ACCESS_AUTHORITY_PACKAGE = "com.android.settings";
     private static final String ACCESS_AUTHORITY_CLASS =
@@ -304,26 +306,6 @@ public final class BluetoothDeviceProfileState extends StateMachine {
         }
     }
 
-    @Override
-    protected void onQuitting() {
-        mContext.unregisterReceiver(mBroadcastReceiver);
-        mBroadcastReceiver = null;
-        mAdapter.closeProfileProxy(BluetoothProfile.HEADSET, mHeadsetService);
-        mBluetoothProfileServiceListener = null;
-        mOutgoingHandsfree = null;
-        mPbap = null;
-        mPbapService.close();
-        mPbapService = null;
-        mIncomingHid = null;
-        mOutgoingHid = null;
-        mIncomingHandsfree = null;
-        mOutgoingHandsfree = null;
-        mIncomingA2dp = null;
-        mOutgoingA2dp = null;
-        mBondedDevice = null;
-    }
-
-
     private class BondedDevice extends State {
         @Override
         public void enter() {
@@ -436,33 +418,36 @@ public final class BluetoothDeviceProfileState extends StateMachine {
                 case TRANSITION_TO_STABLE:
                     // ignore.
                     break;
-/*
-                case SM_QUIT_CMD:
-                    mContext.unregisterReceiver(mBroadcastReceiver);
-                    mBroadcastReceiver = null;
-                    mAdapter.closeProfileProxy(BluetoothProfile.HEADSET, mHeadsetService);
-                    mBluetoothProfileServiceListener = null;
-                    mOutgoingHandsfree = null;
-                    mPbap = null;
-                    mPbapService.close();
-                    mPbapService = null;
-                    mIncomingHid = null;
-                    mOutgoingHid = null;
-                    mIncomingHandsfree = null;
-                    mOutgoingHandsfree = null;
-                    mIncomingA2dp = null;
-                    mOutgoingA2dp = null;
-                    mBondedDevice = null;
-                    // There is a problem in the State Machine code
-                    // where things are not cleaned up properly, when quit message
-                    // is handled so return NOT_HANDLED as a workaround.
-                    return NOT_HANDLED;
-*/
+                case UNPAIR_COMPLETE:
+                    processCommand(UNPAIR_COMPLETE);
+                    break;
                 default:
                     return NOT_HANDLED;
             }
             return HANDLED;
         }
+    }
+
+    @Override
+    //<MR1 change>
+    protected void onQuitting() {
+        mContext.unregisterReceiver(mBroadcastReceiver);
+        mBroadcastReceiver = null;
+        mAdapter.closeProfileProxy(BluetoothProfile.HEADSET, mHeadsetService);
+        mBluetoothProfileServiceListener = null;
+        mOutgoingHandsfree = null;
+        mPbap = null;
+        mPbapService.close();
+        mPbapService = null;
+        mIncomingHid = null;
+        mOutgoingHid = null;
+        mIncomingHandsfree = null;
+        mOutgoingHandsfree = null;
+        mIncomingA2dp = null;
+        mOutgoingA2dp = null;
+        mBondedDevice = null;
+	//<MR1 change>
+        super.onQuitting();
     }
 
     private class OutgoingHandsfree extends State {
@@ -1363,18 +1348,13 @@ public final class BluetoothDeviceProfileState extends StateMachine {
         return mDevice;
     }
 
-    /**
-     * Quit the state machine, only to be called by BluetoothService.
-     *
-     * @hide
-     */
-    public void doQuit() {
-        this.quit();
-    }
-
     private void log(String message) {
         if (DBG) {
             Log.i(TAG, "Device:" + mDevice + " Message:" + message);
         }
+    }
+    //<MR1 change>
+    public void my_quit() {
+        super.quit();
     }
 }

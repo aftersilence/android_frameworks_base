@@ -345,6 +345,12 @@ public final class BluetoothAdapter {
     /** @hide */
     public static final String BLUETOOTH_SERVICE = "bluetooth";
 
+    /**
+     * Dummy BLUETOOTH_MANAGER_SERVICE for JB MR1
+     * @hide
+     */
+    public static final String BLUETOOTH_MANAGER_SERVICE = "bluetooth_manager";
+
     private static final int ADDRESS_LENGTH = 17;
 
     /**
@@ -450,7 +456,6 @@ public final class BluetoothAdapter {
      * @return current state of Bluetooth adapter
      */
     public int getState() {
-        if (mService == null) return STATE_OFF;
         try {
             return mService.getBluetoothState();
         } catch (RemoteException e) {Log.e(TAG, "", e);}
@@ -564,36 +569,6 @@ public final class BluetoothAdapter {
             return mService.getUuids();
         } catch (RemoteException e) {Log.e(TAG, "", e);}
         return null;
-    }
-
-    /** @hide */
-    public static String getStateName(int state) {
-        switch (state) {
-            case STATE_OFF:
-                return "STATE_OFF";
-            case STATE_TURNING_ON:
-                return "STATE_TURNING_ON";
-            case STATE_ON:
-                return "STATE_ON";
-            case STATE_TURNING_OFF:
-                return "STATE_TURNING_OFF";
-            default:
-                return "UNKNOWN";
-        }
-    }
-
-    /** @hide */
-    public static String getScanMode(int mode) {
-        switch (mode) {
-            case SCAN_MODE_NONE:
-                return "SCAN_MODE_NONE";
-            case SCAN_MODE_CONNECTABLE:
-                return "SCAN_MODE_CONNECTABLE";
-            case SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-                return "SCAN_MODE_CONNECTABLE_DISCOVERABLE";
-            default:
-                return "UNKNOWN";
-        }
     }
 
     /**
@@ -866,15 +841,10 @@ public final class BluetoothAdapter {
      */
     private static class RfcommChannelPicker {
         private static final int[] RESERVED_RFCOMM_CHANNELS =  new int[] {
-            1,   // DUN
             10,  // HFAG
             11,  // HSAG
             12,  // OPUSH
-            15,  // SAP
-            16,  // MAS0
-            17,  // MAS1
             19,  // PBAP
-            20,  // FTP
         };
         private static LinkedList<Integer> sChannels;  // master list of non-reserved channels
         private static Random sRandom;
@@ -1079,10 +1049,7 @@ public final class BluetoothAdapter {
         }
 
         if (mServiceRecordHandler == null) {
-            Looper looper = Looper.getMainLooper();
-            if (looper != null) {
-                if (DBG) Log.d(TAG, "Handler to Remove SDP record:MainLooper");
-                mServiceRecordHandler = new Handler(looper) {
+            mServiceRecordHandler = new Handler(Looper.getMainLooper()) {
                     public void handleMessage(Message msg) {
                         /* handle socket closing */
                         int handle = msg.what;
@@ -1093,20 +1060,6 @@ public final class BluetoothAdapter {
                         } catch (RemoteException e) {Log.e(TAG, "", e);}
                     }
                 };
-            }else {
-                if (DBG) Log.d(TAG, "Handler to Remove SDP record:myLooper");
-                mServiceRecordHandler = new Handler() {
-                    public void handleMessage(Message msg) {
-                        /* handle socket closing */
-                        int handle = msg.what;
-                        try {
-                            if (DBG) Log.d(TAG, "Removing service record " +
-                                           Integer.toHexString(handle));
-                            mService.removeServiceRecord(handle);
-                        } catch (RemoteException e) {Log.e(TAG, "", e);}
-                    }
-                };
-            }
         }
         socket.setCloseHandler(mServiceRecordHandler, handle);
         return socket;
