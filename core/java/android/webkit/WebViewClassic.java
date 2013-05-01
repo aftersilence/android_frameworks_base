@@ -4449,7 +4449,7 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
     public void clearSelection() {
         selectionDone();
         if (mWebViewCore != null) {
-            mWebViewCore.sendMessage(EventHub.SELECT_TEXT, null);
+            mWebViewCore.sendMessage(EventHub.CLEAR_SELECT_TEXT);
         }
     }
 
@@ -8396,8 +8396,10 @@ public final class WebViewClassic implements WebViewProvider, WebViewProvider.Sc
             mListBoxDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
                 @Override
                 public void onCancel(DialogInterface dialog) {
+                 if (mWebViewCore != null) {
                     mWebViewCore.sendMessage(
                                 EventHub.SINGLE_LISTBOX_CHOICE, -2, 0);
+                    }
                     mListBoxDialog = null;
                 }
             });
