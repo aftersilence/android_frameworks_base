@@ -21,17 +21,22 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.LayoutTransition;
 import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.ContentObserver;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ServiceManager;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Slog;
 import android.view.animation.AccelerateInterpolator;
@@ -44,8 +49,11 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.net.URISyntaxException;
+import java.util.List;
 
 import com.android.internal.statusbar.IStatusBarService;
 import com.android.systemui.R;
@@ -92,9 +100,16 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
     private DelegateViewHelper mDelegateHelper;
     private DeadZone mDeadZone;
 
+    private SettingsObserver mSettingsObserver;
+
     // workaround for LayoutTransitions leaving the nav buttons in a weird state (bug 5549288)
     final static boolean WORKAROUND_INVALID_LAYOUT = true;
     final static int MSG_CHECK_INVALID_LAYOUT = 8686;
+
+    private float mAlpha;
+    private int mAlphaMode;
+    private int mNavBarColor;
+    private boolean mIsHome = true;
 
     private class H extends Handler {
         public void handleMessage(Message m) {
@@ -201,6 +216,17 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         mContext.registerReceiver(mNavBarReceiver, new IntentFilter(NAVBAR_EDIT));
     }
 
+    private void makeBar() {
+        Drawable bg = mContext.getResources().getDrawable(R.drawable.nav_bar_bg);
+
+        if(bg instanceof ColorDrawable) {
+            BackgroundAlphaColorDrawable bacd = new BackgroundAlphaColorDrawable(
+                    mNavBarColor != -2 ? mNavBarColor : ((ColorDrawable) bg).getColor());
+            setBackground(bacd);
+        }
+        updateKeyguardAlpha();
+    }
+
     protected void updateResources() {
         final Resources res = mContext.getResources();
         mBackIcon = res.getDrawable(R.drawable.ic_sysbar_back);
@@ -298,11 +324,26 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
                             : (mVertical ? mBackLandIcon : mBackIcon));
         }
         setDisabledFlags(mDisabledFlags, true);
+        updateKeyguardAlpha();
     }
 
     @Override
     public void setDisabledFlags(int disabledFlags) {
         setDisabledFlags(disabledFlags, false);
+    }
+
+    private boolean isKeyguardEnabled() {
+        return ((mDisabledFlags & View.STATUS_BAR_DISABLE_HOME) != 0) && !((mDisabledFlags & View.STATUS_BAR_DISABLE_SEARCH) != 0);
+    }
+
+    private void updateKeyguardAlpha() {
+        if((mNavigationIconHints & StatusBarManager.NAVIGATION_HINT_BACK_ALT) != 0
+                || (isKeyguardEnabled() && mAlphaMode == 0)
+                || (!isKeyguardEnabled() && mIsHome == false && mAlphaMode != 2)) {
+            setBackgroundAlpha(1);
+        } else {
+            setBackgroundAlpha(mAlpha);
+        }
     }
 
     public void setDisabledFlags(int disabledFlags, boolean force) {
@@ -315,6 +356,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         final boolean disableBack = ((disabledFlags & View.STATUS_BAR_DISABLE_BACK) != 0)
                 && ((mNavigationIconHints & StatusBarManager.NAVIGATION_HINT_BACK_ALT) == 0);
         final boolean disableSearch = ((disabledFlags & View.STATUS_BAR_DISABLE_SEARCH) != 0);
+        final boolean keygaurdProbablyEnabled = isKeyguardEnabled();
 
         if (SLIPPERY_WHEN_DISABLED) {
             setSlippery(disableHome && disableRecent && disableBack && disableSearch);
@@ -337,7 +379,8 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         setButtonWithTagVisibility(NavigationButtons.ALWAYS_MENU, disableRecent ? View.INVISIBLE : View.VISIBLE);
         setButtonWithTagVisibility(NavigationButtons.MENU_BIG, disableRecent ? View.INVISIBLE : View.VISIBLE);
         setButtonWithTagVisibility(NavigationButtons.SEARCH, disableRecent ? View.INVISIBLE : View.VISIBLE);
-        getSearchLight().setVisibility((disableHome && !disableSearch) ? View.VISIBLE : View.GONE);
+        getSearchLight().setVisibility(keygaurdProbablyEnabled ? View.VISIBLE : View.GONE);
+        updateKeyguardAlpha();
     }
 
     public void setSlippery(boolean newSlippery) {
@@ -433,6 +476,27 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         mRotatedViews[Configuration.ORIENTATION_PORTRAIT] = findViewById(R.id.rot0);
         mRotatedViews[Configuration.ORIENTATION_LANDSCAPE] = findViewById(R.id.rot90);
         mCurrentView = mRotatedViews[mContext.getResources().getConfiguration().orientation];
+
+        // this takes care of activity broadcasts for alpha mode
+        BroadcastObserver broadcastObserver = new BroadcastObserver(new Handler());
+        broadcastObserver.observe();
+
+        // this takes care of making the buttons
+        mSettingsObserver = new SettingsObserver(new Handler());
+        updateSettings();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mSettingsObserver.observe();
+        updateSettings();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        mContext.getContentResolver().unregisterContentObserver(mSettingsObserver);
+        super.onDetachedFromWindow();
     }
 
     public void reorient() {
@@ -514,7 +578,87 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
         return super.onInterceptTouchEvent(ev);
     }
     */
-        
+
+    /*
+     * ]0 < alpha < 1[
+     */
+    private void setBackgroundAlpha(float alpha) {
+        Drawable bg = getBackground();
+        if(bg == null) return;
+
+        if(bg instanceof BackgroundAlphaColorDrawable) {
+            if(mNavBarColor != -2) {
+                ((BackgroundAlphaColorDrawable) bg).setBgColor(mNavBarColor);
+            }
+        }
+        int a = Math.round(alpha * 255);
+        bg.setAlpha(a);
+    }
+
+    class BroadcastObserver extends ContentObserver {
+        BroadcastObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.IS_HOME), false,
+                    this);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            mIsHome = Settings.System.getInt(getContext().getContentResolver(),
+                   Settings.System.IS_HOME, 1) == 1;
+            updateKeyguardAlpha();
+        }
+    }        
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_ALPHA), false,
+                    this);
+
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.STATUS_NAV_BAR_ALPHA_MODE), false,
+                    this);
+
+            resolver.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.NAVIGATION_BAR_COLOR), false,
+                    this);
+
+            updateSettings();
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            updateSettings();
+        }
+    }
+
+    protected void updateSettings() {
+        ContentResolver resolver = mContext.getContentResolver();
+
+        mAlpha = 1 - Settings.System.getFloat(resolver,
+                Settings.System.NAVIGATION_BAR_ALPHA, 0.0f);
+
+        mAlphaMode = Settings.System.getInt(resolver,
+                Settings.System.STATUS_NAV_BAR_ALPHA_MODE, 1);
+
+        mNavBarColor = Settings.System.getInt(resolver,
+                Settings.System.NAVIGATION_BAR_COLOR, -2);
+
+        makeBar();
+    }
 
     private String getResourceName(int resId) {
         if (resId != 0) {
