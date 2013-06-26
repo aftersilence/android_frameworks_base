@@ -2685,13 +2685,6 @@ public final class Settings {
         public static final String EXPANDED_SCREENTIMEOUT_MODE = "expanded_screentimeout_mode";
 
         /**
-         * HALO pause activities?, defaults to 0 (no, do not pause) on devices which isLargeRAM() == true
-         * otherwise it defaults to 1 (yes, do pause)
-         * @hide
-         */
-        public static final String HALO_PAUSE = "halo_pause";
-
-        /**
         * Notification Power Widget - Custom Ring Mode
         * @hide
         */
@@ -2827,6 +2820,19 @@ public final class Settings {
          * @hide
          */
         public static final String HALO_HIDE = "halo_hide";
+
+        /**
+        * HALO pause activities?, defaults to 0 (no, do not pause) on devices which isLargeRAM() == true
+        * otherwise it defaults to 1 (yes, do pause)
+        * @hide
+        */
+        public static final String HALO_PAUSE = "halo_pause";
+
+        /**
+        * HALO enabled, should default to 0 (HALO is disabled)
+        * @hide
+        */
+        public static final String HALO_ENABLED = "halo_enabled";
 
         /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
