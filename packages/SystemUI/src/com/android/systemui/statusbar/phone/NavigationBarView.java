@@ -273,7 +273,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
     }
 
     public void updateSettings() {
-        mEditBar.updateKeys();
+        if(mEditBar !=null) mEditBar.updateKeys();
         removeButtonListeners();
         updateButtonListeners();
         setDisabledFlags(mDisabledFlags, true /* force */);
@@ -497,14 +497,14 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
 
         // this takes care of making the buttons
         mSettingsObserver = new SettingsObserver(new Handler());
-        updateSettings();
+        update();
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mSettingsObserver.observe();
-        updateSettings();
+        update();
     }
 
     @Override
