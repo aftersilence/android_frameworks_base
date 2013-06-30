@@ -16,8 +16,12 @@
 
 package com.android.systemui.statusbar.halo;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -58,6 +62,11 @@ public class HaloProperties extends FrameLayout {
     protected View mHaloNumberView;
     protected TextView mHaloNumber;
 
+    private boolean mAttached = false;
+
+    private SettingsObserver mSettingsObserver;
+    private Handler mHandler;
+
     CustomObjectAnimator mHaloOverlayAnimator;
 
     public HaloProperties(Context context) {
@@ -86,7 +95,29 @@ public class HaloProperties extends FrameLayout {
         mHaloNumber.setAlpha(0f);
 
         mHaloOverlayAnimator = new CustomObjectAnimator(this);
-    }        
+        mHandler = new Handler();
+    }
+
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        if (!mAttached) {
+            mAttached = true;
+            mSettingsObserver = new SettingsObserver(new Handler());
+            mSettingsObserver.observe();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+
+        if (mAttached) {
+            mContext.getContentResolver().unregisterContentObserver(mSettingsObserver);
+            mAttached = false;
+        }
+    } 
 
     public void setHaloX(int value) {
         mHaloX = value;
@@ -160,5 +191,15 @@ public class HaloProperties extends FrameLayout {
         mHaloNumberView.measure(MeasureSpec.getSize(mHaloNumberView.getMeasuredWidth()),
                 MeasureSpec.getSize(mHaloNumberView.getMeasuredHeight()));
         mHaloNumberView.layout(0, 0, 0, 0);
+    }
+
+    class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        void observe() {
+            ContentResolver resolver = mContext.getContentResolver();
+        }
     }
 }
