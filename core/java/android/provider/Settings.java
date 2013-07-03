@@ -2842,6 +2842,12 @@ public final class Settings {
         public static final String HALO_ENABLED = "halo_enabled";
 
         /**
+        * HALO active button hide, should default to 0 (HALO is disabled)
+        * @hide
+        */
+        public static final String HALO_HIDE_BUTTON = "halo_hide_button";
+
+        /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
          * @hide
          */
@@ -3186,6 +3192,39 @@ public final class Settings {
          * @hide
          */
         public static final String STATUS_NAV_BAR_ALPHA_MODE = "status_nav_bar_alpha_mode";
+
+        /**
+         *
+         * HALO colors
+         * @hide
+         */
+        public static final String HALO_COLORS = "halo_colors";
+
+        /**
+         *
+         * HALO effect color
+         * @hide
+         */
+        public static final String HALO_EFFECT_COLOR = "halo_effect_color";
+
+        /**
+         *
+         * HALO circle bg color
+         * @hide
+         */
+        public static final String HALO_CIRCLE_COLOR = "halo_circle_color";
+
+        /**
+         * HALO speech bubble color
+         * @hide
+         */
+        public static final String HALO_BUBBLE_COLOR = "halo_bubble_color";
+
+        /**
+         * HALO speech bubble text color
+         * @hide
+         */
+        public static final String HALO_BUBBLE_TEXT_COLOR = "halo_bubble_text_color";
 
          /**
           * Volume keys control cursor in text fields (default is 0)
