@@ -301,9 +301,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ENABLED, 0) == 1;
 
-        mHaloButtonVisible = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HALO_HIDE_BUTTON, 0) == 0;
-
         createAndAddWindows();
 
         disable(switches[0]);
