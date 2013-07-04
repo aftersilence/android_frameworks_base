@@ -165,7 +165,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
 
     private int mIconSize, mIconHalfSize;
     private int mScreenWidth, mScreenHeight;
-    private int mKillX, mKillY;
     private int mMarkerIndex = -1;
 
     private int oldIconIndex = -1;
@@ -314,9 +313,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         preferences = mContext.getSharedPreferences("Halo", 0);
         int msavePositionX = preferences.getInt(KEY_HALO_POSITION_X, 0);
         int msavePositionY = preferences.getInt(KEY_HALO_POSITION_Y, mScreenHeight / 2 - mIconHalfSize);
-        
-        mKillX = mScreenWidth / 2;
-        mKillY = mIconHalfSize;
 
         if (!mFirstStart) {
             if (msavePositionY < 0) mEffect.setHaloY(0);
@@ -507,7 +503,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                 updateTriggerPosition(mEffect.getHaloX(), mEffect.getHaloY());
 
                 mEffect.outro();
-                mEffect.killTicker();
                 mEffect.unscheduleSleep();
 
                 // Do we erase ourselves?
@@ -586,34 +581,11 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             case MotionEvent.ACTION_MOVE:
                 if (hiddenState) break;
                
-                float distanceX = mKillX-event.getRawX();
-                float distanceY = mKillY-event.getRawY();
-                float distanceToKill = (float)Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
-
-                distanceX = initialX-event.getRawX();
-                distanceY = initialY-event.getRawY();
+                float distanceX = initialX-event.getRawX();
+                float distanceY = initialY-event.getRawY();
                 float initialDistance = (float)Math.sqrt(Math.pow(distanceX, 2) + Math.pow(distanceY, 2));
 
                 if (mState != State.GESTURES) {
-                    // Check kill radius
-                    if (distanceToKill < mIconSize) {
-                        // Magnetize X
-                        mEffect.setHaloX((int)mKillX - mIconHalfSize);
-                        mEffect.setHaloY((int)(mKillY - mIconHalfSize));
-                            
-                        if (!mOverX) {
-                            if (mHapticFeedback) mVibrator.vibrate(25);
-                            mEffect.ping(mPaintHoloRed, 0);
-                            mEffect.setHaloOverlay(HaloProperties.Overlay.BLACK_X, 1f);
-                            mOverX = true;
-                        }
-
-                        return false;
-                    } else {
-                        if (mOverX) mEffect.setHaloOverlay(HaloProperties.Overlay.NONE, 0f);
-                        mOverX = false;
-                    }
-
                     // Drag
                     if (mState != State.DRAG) {
                         if (initialDistance > mIconSize * 0.7f) {
@@ -697,7 +669,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
 
                     if (gestureChanged) {
                         mMarkerIndex = -1;
-                        mEffect.killTicker();
                         if (mHapticFeedback) mVibrator.vibrate(10);
                     }
 
@@ -843,14 +814,8 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             initControl();
         }
 
-        public void killTicker() {
-            tickerAnimator.animate(ObjectAnimator.ofFloat(this, "haloContentAlpha", 0f).setDuration(250),
-                    new DecelerateInterpolator(), null);
-        }
-
         public void ticker(String tickerText, int delay, int startDuration) {
             if (tickerText == null || tickerText.isEmpty()) {
-                killTicker();
                 return;
             }
 
@@ -993,11 +958,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             mHaloContentView.draw(canvas);
             canvas.restoreToCount(state);
 
-            // X
-            float fraction = 1 - ((float)xPaint.getAlpha()) / 255;
-            int killyPos = (int)(mKillY - mBigRed.getWidth() / 2 - mIconSize * fraction);
-            canvas.drawBitmap(mBigRed, mKillX - mBigRed.getWidth() / 2, killyPos, xPaint);
-
             // Horizontal Marker
             if (mGesture == Gesture.TASK) {
                 if (y > 0 && mNotificationData != null && mNotificationData.size() > 0) {
@@ -1063,7 +1023,6 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         mEffect.mHaloNumber.setAlpha(0f);
         mContentIntent = null;
         mCurrentNotficationEntry = null;
-        mEffect.killTicker();
         mEffect.updateResources();
         mEffect.invalidate();
     }
