@@ -174,8 +174,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected Ticker mTicker;
     protected boolean mHaloEnabled;
     protected boolean mHaloTaskerActive = false;
-    protected ImageView mHaloButton;
-    protected boolean mHaloButtonVisible = true;
 
     // Pie Control
     protected PieController mPieController;
@@ -389,22 +387,9 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
     }
 
-    protected void updateHaloButton() {
-        if (!mHaloEnabled) {
-            mHaloButtonVisible = false;
-        } else {
-            mHaloButtonVisible = true;
-        }
-        if (mHaloButton != null) {
-            mHaloButton.setVisibility(mHaloButtonVisible && !mHaloEnabled ? View.VISIBLE : View.GONE);
-        }
-    }
-
     protected void updateHalo() {
         mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ENABLED, 0) == 1;
-
-        updateHaloButton();
 
         if (mHaloEnabled) {
             if (mHalo == null) {
