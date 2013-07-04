@@ -613,7 +613,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         mTicker = new MyTicker(context, mStatusBarView);
         TickerView tickerView = (TickerView)mStatusBarView.findViewById(R.id.tickerText);
         tickerView.mTicker = mTicker;
-        if (mHaloActive) mTickerView.setVisibility(View.GONE);
+        if (mHaloEnabled) mTickerView.setVisibility(View.GONE);
 
         mEdgeBorder = res.getDimensionPixelSize(R.dimen.status_bar_edge_ignore);
 
@@ -2322,7 +2322,7 @@ public class PhoneStatusBar extends BaseStatusBar {
     @Override
     protected void tick(IBinder key, StatusBarNotification n, boolean firstTime) {
         // no ticking in lights-out mode, except if halo is active
-        if (!areLightsOn() && !mHaloActive) return;
+        if (!areLightsOn() && !mHaloEnabled) return;
 
         // no ticking in Setup
         if (!isDeviceProvisioned()) return;
@@ -2350,7 +2350,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         @Override
         public void tickerStarting() {
             mTicking = true;
-            if (!mHaloActive) {
+            if (!mHaloEnabled) {
                 mStatusBarContents.setVisibility(View.GONE);
                 mTickerView.setVisibility(View.VISIBLE);
                 mTickerView.startAnimation(loadAnim(com.android.internal.R.anim.push_up_in, null));
@@ -2360,7 +2360,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         @Override
         public void tickerDone() {
-            if (!mHaloActive) {
+            if (!mHaloEnabled) {
                 mStatusBarContents.setVisibility(View.VISIBLE);
                 mTickerView.setVisibility(View.GONE);
                 mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.push_down_in, null));
@@ -2371,7 +2371,7 @@ public class PhoneStatusBar extends BaseStatusBar {
 
         @Override
         public void tickerHalting() {
-            if (!mHaloActive) {
+            if (!mHaloEnabled) {
                 mStatusBarContents.setVisibility(View.VISIBLE);
                 mTickerView.setVisibility(View.GONE);
                 mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.fade_in, null));
@@ -2689,7 +2689,7 @@ public class PhoneStatusBar extends BaseStatusBar {
         public void onClick(View v) {
             // Activate HALO
             Settings.System.putInt(mContext.getContentResolver(),
-                    Settings.System.HALO_ACTIVE, 1);
+                    Settings.System.HALO_ENABLED, 1);
             // Switch off regular ticker
             mTickerView.setVisibility(View.GONE);
             // Collapse

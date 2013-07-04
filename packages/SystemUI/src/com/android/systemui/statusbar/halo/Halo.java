@@ -513,7 +513,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                 // Do we erase ourselves?
                 if (mOverX) {
                     Settings.System.putInt(mContext.getContentResolver(),
-                            Settings.System.HALO_ACTIVE, 0);
+                            Settings.System.HALO_ENABLED, 0);
                     return true;
                 }
                 

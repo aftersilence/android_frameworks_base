@@ -173,7 +173,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     protected Halo mHalo = null;
     protected Ticker mTicker;
     protected boolean mHaloEnabled;
-    protected boolean mHaloActive;
     protected boolean mHaloTaskerActive = false;
     protected ImageView mHaloButton;
     protected boolean mHaloButtonVisible = true;
@@ -302,9 +301,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ENABLED, 0) == 1;
 
-        mHaloActive = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HALO_ACTIVE, 0) == 1;
-
         mHaloButtonVisible = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_HIDE_BUTTON, 0) == 0;
 
@@ -383,14 +379,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                 updateHalo();
             }});
 
-        // Listen for HALO state
-        mContext.getContentResolver().registerContentObserver(
-                Settings.System.getUriFor(Settings.System.HALO_ACTIVE), false, new ContentObserver(new Handler()) {
-            @Override
-            public void onChange(boolean selfChange) {
-                updateHalo();
-            }});
-
         updateHalo();
 
         SettingsObserver settingsObserver = new SettingsObserver(new Handler());
@@ -408,27 +396,20 @@ public abstract class BaseStatusBar extends SystemUI implements
         if (!mHaloEnabled) {
             mHaloButtonVisible = false;
         } else {
-            mHaloButtonVisible = (Settings.System.getInt(mContext.getContentResolver(),
-            Settings.System.HALO_HIDE_BUTTON, 0) == 0) ? true : false;
+            mHaloButtonVisible = true;
         }
         if (mHaloButton != null) {
-            mHaloButton.setVisibility(mHaloButtonVisible && !mHaloActive ? View.VISIBLE : View.GONE);
+            mHaloButton.setVisibility(mHaloButtonVisible && !mHaloEnabled ? View.VISIBLE : View.GONE);
         }
     }
 
     protected void updateHalo() {
         mHaloEnabled = Settings.System.getInt(mContext.getContentResolver(),
                 Settings.System.HALO_ENABLED, 0) == 1;
-        mHaloActive = Settings.System.getInt(mContext.getContentResolver(),
-                Settings.System.HALO_ACTIVE, 0) == 1;
 
         updateHaloButton();
 
-        if (!mHaloEnabled) {
-            mHaloActive = false;
-        }
-
-        if (mHaloActive) {
+        if (mHaloEnabled) {
             if (mHalo == null) {
                 LayoutInflater inflater = (LayoutInflater) mContext
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
@@ -1280,7 +1261,7 @@ public abstract class BaseStatusBar extends SystemUI implements
         
         boolean updateTicker = (notification.notification.tickerText != null
                 && !TextUtils.equals(notification.notification.tickerText,
-                        oldEntry.notification.notification.tickerText)) || mHaloActive;
+                        oldEntry.notification.notification.tickerText)) || mHaloEnabled;
         boolean isTopAnyway = isTopNotification(rowParent, oldEntry);
         if (contentsUnchanged && bigContentsUnchanged && (orderUnchanged || isTopAnyway)) {
             if (DEBUG) Slog.d(TAG, "reusing notification for key: " + key);
