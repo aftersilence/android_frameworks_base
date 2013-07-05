@@ -50,6 +50,7 @@
     <string name="quick_settings_camera_label">Камера</string>
     <string name="quick_settings_expanded_desktop">Расширенный</string>
     <string name="quick_settings_expanded_desktop_off">Обычный</string>
+    <string name="quick_settings_halo_off_label">Halo выкл.</string>
     <string name="navbar_dialog_title">Выберите действие</string>
     <string name="navbar_home_button">Домой</string>
     <string name="navbar_recent_button">Запущ. приложения</string>
