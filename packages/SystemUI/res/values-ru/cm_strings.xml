@@ -69,4 +69,8 @@
 
     <!-- Camera tile toasts -->
     <string name="quick_settings_camera_error_connect">Не удаётся подключиться к камере</string>
+
+    <!-- Halo -->
+    <string name="halo_dismiss">Скрыть уведомление</string>
+    <string name="halo_hide">Скрыть Halo</string>
 </resources>
