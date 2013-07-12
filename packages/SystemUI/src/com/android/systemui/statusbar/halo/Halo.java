@@ -496,6 +496,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
                 updateTriggerPosition(mEffect.getHaloX(), mEffect.getHaloY());
 
                 mEffect.outro();
+                mEffect.killTicker();
                 mEffect.unscheduleSleep();
 
                 // Do we erase ourselves?
@@ -809,8 +810,14 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
             initControl();
         }
 
+        public void killTicker() {
+            tickerAnimator.animate(ObjectAnimator.ofFloat(this, "haloContentAlpha", 0f).setDuration(250),
+                    new DecelerateInterpolator(), null);
+        }
+
         public void ticker(String tickerText, int delay, int startDuration) {
             if (tickerText == null || tickerText.isEmpty()) {
+                killTicker();
                 return;
             }
 
@@ -1001,6 +1008,7 @@ public class Halo extends FrameLayout implements Ticker.TickerCallback {
         mEffect.mHaloNumber.setAlpha(0f);
         mContentIntent = null;
         mCurrentNotficationEntry = null;
+        mEffect.killTicker();
         mEffect.updateResources();
         mEffect.invalidate();
     }
