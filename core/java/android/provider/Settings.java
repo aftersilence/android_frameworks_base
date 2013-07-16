@@ -2842,6 +2842,16 @@ public final class Settings {
         public static final String HALO_ENABLED = "halo_enabled";
 
         /**
+         * HALO size fraction, default is 1.0f (normal)
+         * @hide
+         */
+        public static final String HALO_SIZE = "halo_size";
+
+        /**
+         * HALO pause activities?, defaults to 0 (no, do not pause) on devices which isLargeRAM() == true
+         * otherwise it defaults to 1 (yes, do pause)
+
+        /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
          * @hide
          */
