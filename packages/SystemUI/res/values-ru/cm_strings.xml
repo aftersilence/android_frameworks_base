@@ -75,4 +75,7 @@
     <string name="halo_hide">Скрыть Halo</string>
     <string name="halo_clear_all">Скрыть все уведомления</string>
     <string name="halo_silence">Скрыть и заглушить Halo до след. уведомления</string>
+    <string name="halo_tutorial1">Я Halo.</string>
+    <string name="halo_tutorial2">Переместите меня дважды нажав и удерживая иконку.</string>
+    <string name="halo_tutorial3">Измените поведение в настройках, если хотите перемещать меня одним нажатием.</string>
 </resources>
