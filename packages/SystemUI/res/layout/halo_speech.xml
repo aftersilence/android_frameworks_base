@@ -29,7 +29,8 @@
                 android:visibility="gone"
                 android:textStyle="bold|italic"
                 android:textColor="#33b5e5"
-                android:textSize="@dimen/halo_speech_text_size"/>
+                android:textSize="@dimen/halo_speech_text_size"
+                android:gravity="center"/>
 
             <TextView
                 android:id="@+id/bubble_l"
@@ -45,7 +46,8 @@
                 android:visibility="gone"
                 android:textStyle="bold|italic"
                 android:textColor="#33b5e5"
-                android:textSize="@dimen/halo_speech_text_size"/>
+                android:textSize="@dimen/halo_speech_text_size"
+                android:gravity="center"/>
 
         </RelativeLayout>
 
