@@ -28,7 +28,7 @@
                 android:maxLines = "2"
                 android:visibility="gone"
                 android:textStyle="bold|italic"
-                android:gravity="center"/
+                android:gravity="center"
                 android:textColor="#fff"
                 android:textSize="@dimen/halo_speech_text_size"/>
 
@@ -44,7 +44,7 @@
                 android:singleLine="false"
                 android:maxLines = "2"
                 android:visibility="gone"
-                android:textStyle="bold|italic""
+                android:textStyle="bold|italic"
                 android:gravity="center"
                 android:textColor="#fff"
                 android:textSize="@dimen/halo_speech_text_size"/>
