@@ -21,7 +21,6 @@ import android.bluetooth.BluetoothHealthAppConfiguration;
 import android.os.ParcelFileDescriptor;
 
 /**
- *@hide
  */
 interface IBluetoothHealthCallback
 {

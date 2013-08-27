@@ -840,6 +840,34 @@ public class NetworkManagementService extends INetworkManagementService.Stub
         return event.getMessage().endsWith("started");
     }
 
+    // TODO(BT) Remove
+    public void startReverseTethering(String iface)
+             throws IllegalStateException {
+        if (DBG) Slog.d(TAG, "startReverseTethering in");
+        mContext.enforceCallingOrSelfPermission(CONNECTIVITY_INTERNAL, TAG);
+        // cmd is "tether start first_start first_stop second_start second_stop ..."
+        // an odd number of addrs will fail
+        String cmd = "tether start-reverse";
+        cmd += " " + iface;
+        if (DBG) Slog.d(TAG, "startReverseTethering cmd: " + cmd);
+        try {
+            
+			 mConnector.execute("tether", "start");
+        } catch (NativeDaemonConnectorException e) {
+            throw new IllegalStateException("Unable to communicate to native daemon");
+        }
+    }
+
+    // TODO(BT) Remove
+    public void stopReverseTethering() throws IllegalStateException {
+        mContext.enforceCallingOrSelfPermission(CONNECTIVITY_INTERNAL, TAG);
+        try {
+           	 mConnector.execute("tether", "stop");
+        } catch (NativeDaemonConnectorException e) {
+            throw new IllegalStateException("Unable to communicate to native daemon to stop tether");
+        }
+    }
+
     @Override
     public void tetherInterface(String iface) {
         mContext.enforceCallingOrSelfPermission(CONNECTIVITY_INTERNAL, TAG);

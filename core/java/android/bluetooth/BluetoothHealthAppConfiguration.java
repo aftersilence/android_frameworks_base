@@ -38,7 +38,6 @@ public final class BluetoothHealthAppConfiguration implements Parcelable {
      *
      * @param name Friendly name associated with the application configuration
      * @param dataType Data Type of the remote Bluetooth Health device
-     * @hide
      */
     BluetoothHealthAppConfiguration(String name, int dataType) {
         mName = name;
@@ -54,7 +53,6 @@ public final class BluetoothHealthAppConfiguration implements Parcelable {
      * @param dataType Data Type of the remote Bluetooth Health device
      * @param role {@link BluetoothHealth#SOURCE_ROLE} or
      *                     {@link BluetoothHealth#SINK_ROLE}
-     * @hide
      */
     BluetoothHealthAppConfiguration(String name, int dataType, int role, int
         channelType) {

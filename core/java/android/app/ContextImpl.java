@@ -22,7 +22,7 @@ import com.android.internal.util.Preconditions;
 
 import android.accounts.AccountManager;
 import android.accounts.IAccountManager;
-import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.ContentResolver;
@@ -334,7 +334,7 @@ class ContextImpl extends Context {
 
         registerService(BLUETOOTH_SERVICE, new ServiceFetcher() {
                 public Object createService(ContextImpl ctx) {
-                    return new BluetoothManager(ctx);
+                    return BluetoothAdapter.getDefaultAdapter();
                 }});
 
         registerService(CLIPBOARD_SERVICE, new ServiceFetcher() {

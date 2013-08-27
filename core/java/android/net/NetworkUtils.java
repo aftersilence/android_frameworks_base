@@ -68,6 +68,18 @@ public class NetworkUtils {
      */
     public native static boolean runDhcp(String interfaceName, DhcpResults dhcpResults);
 
+	    /**
+     * Start the DHCP client daemon, in order to have it request addresses
+     * for the named interface, and then configure the interface with those
+     * addresses. This call blocks until it obtains a result (either success
+     * or failure) from the daemon.
+     * @param interfaceName the name of the interface to configure
+     * @param ipInfo if the request succeeds, this object is filled in with
+     * the IP address information.
+     * @return {@code true} for success, {@code false} for failure
+     */
+    public native static boolean runDhcpInternal(String interfaceName, DhcpInfoInternal ipInfo);
+	
     /**
      * Initiate renewal on the Dhcp client daemon. This call blocks until it obtains
      * a result (either success or failure) from the daemon.
@@ -117,6 +129,21 @@ public class NetworkUtils {
         } catch (UnknownHostException e) {
            throw new AssertionError();
         }
+    }
+	
+	 /**
+     * Convert a IPv4 address from an InetAddress to an integer
+     * @param inetAddr is an InetAddress corresponding to the IPv4 address
+     * @return the IP address as an integer in network byte order
+     */
+    public static int inetAddressToInt(InetAddress inetAddr)
+            throws IllegalArgumentException {
+        byte [] addr = inetAddr.getAddress();
+        if (addr.length != 4) {
+            throw new IllegalArgumentException("Not an IPv4 address");
+        }
+        return ((addr[3] & 0xff) << 24) | ((addr[2] & 0xff) << 16) |
+                ((addr[1] & 0xff) << 8) | (addr[0] & 0xff);
     }
 
     /**

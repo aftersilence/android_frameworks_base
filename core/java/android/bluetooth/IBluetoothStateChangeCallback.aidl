@@ -19,7 +19,6 @@ package android.bluetooth;
 /**
  * System private API for Bluetooth state change callback.
  *
- * {@hide}
  */
 interface IBluetoothStateChangeCallback
 {

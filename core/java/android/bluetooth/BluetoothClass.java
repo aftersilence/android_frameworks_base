@@ -57,7 +57,6 @@ public final class BluetoothClass implements Parcelable {
 
     private final int mClass;
 
-    /** @hide */
     public BluetoothClass(int classInt) {
         mClass = classInt;
     }
