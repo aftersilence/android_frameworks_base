@@ -151,10 +151,4 @@ public class BluetoothProfileState extends StateMachine {
             }
         }
     }
-
-    private void log(String message) {
-        if (DBG) {
-            Log.i(TAG, "Message:" + message);
-        }
-    }
 }

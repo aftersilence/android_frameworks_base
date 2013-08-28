@@ -1348,11 +1348,6 @@ public final class BluetoothDeviceProfileState extends StateMachine {
         return mDevice;
     }
 
-    private void log(String message) {
-        if (DBG) {
-            Log.i(TAG, "Device:" + mDevice + " Message:" + message);
-        }
-    }
     //<MR1 change>
     public void my_quit() {
         super.quit();

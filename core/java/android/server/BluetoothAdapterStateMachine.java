@@ -815,8 +815,4 @@ final class BluetoothAdapterStateMachine extends StateMachine {
             pw.println("ERROR: Bluetooth UNKNOWN STATE ");
         }
     }
-
-    private static void log(String msg) {
-        Log.d(TAG, msg);
-    }
 }
