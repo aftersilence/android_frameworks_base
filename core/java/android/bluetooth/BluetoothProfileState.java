@@ -106,6 +106,7 @@ public class BluetoothProfileState extends StateMachine {
     private class StableState extends State {
         @Override
         public void enter() {
+            log("Entering Stable State");
             mPendingDevice = null;
         }
 
@@ -121,6 +122,7 @@ public class BluetoothProfileState extends StateMachine {
     private class PendingCommandState extends State {
         @Override
         public void enter() {
+            log("Entering PendingCommandState State");
             dispatchMessage(getCurrentMessage());
         }
 
@@ -147,6 +149,12 @@ public class BluetoothProfileState extends StateMachine {
                 deferMsg.obj = deviceProfileMgr;
                 deferMessage(deferMsg);
             }
+        }
+    }
+
+    private void log(String message) {
+        if (DBG) {
+            Log.i(TAG, "Message:" + message);
         }
     }
 }

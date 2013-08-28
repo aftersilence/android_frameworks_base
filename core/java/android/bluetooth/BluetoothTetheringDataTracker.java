@@ -27,7 +27,6 @@ import android.net.NetworkStateTracker;
 import android.net.NetworkUtils;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Messenger;
 import android.util.Log;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -279,10 +278,10 @@ public class BluetoothTetheringDataTracker implements NetworkStateTracker {
                 //TODO(): Add callbacks for failure and success case.
                 //Currently this thread runs independently.
                 DhcpInfoInternal dhcpInfoInternal = new DhcpInfoInternal();
-               /* if (!NetworkUtils.runDhcp(mIface, dhcpInfoInternal)) {
+                if (!NetworkUtils.runDhcp(mIface, dhcpInfoInternal)) {
                     Log.e(TAG, "DHCP request error:" + NetworkUtils.getDhcpError());
                     return;
-                }*/
+                }
                 mLinkProperties = dhcpInfoInternal.makeLinkProperties();
                 mLinkProperties.setInterfaceName(mIface);
 
@@ -323,20 +322,6 @@ public class BluetoothTetheringDataTracker implements NetworkStateTracker {
     }
 
     public void setDependencyMet(boolean met) {
-        // not supported on this network
-    }
-	@Override
-    public void addStackedLink(LinkProperties link) {
-        mLinkProperties.addStackedLink(link);
-    }
-
-    @Override
-    public void removeStackedLink(LinkProperties link) {
-        mLinkProperties.removeStackedLink(link);
-    }
-
-    @Override
-    public void supplyMessenger(Messenger messenger) {
         // not supported on this network
     }
 }

@@ -1343,20 +1343,16 @@ public final class BluetoothDeviceProfileState extends StateMachine {
         }
 
     }
-	
-	/**
-     * Quit the state machine, only to be called by BluetoothService.
-     *
-     * @hide
-     */
-    public void doQuit() {
-        this.quit();
-    }
-	
+
     /*package*/ BluetoothDevice getDevice() {
         return mDevice;
     }
 
+    private void log(String message) {
+        if (DBG) {
+            Log.i(TAG, "Device:" + mDevice + " Message:" + message);
+        }
+    }
     //<MR1 change>
     public void my_quit() {
         super.quit();

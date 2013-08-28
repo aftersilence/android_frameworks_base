@@ -137,7 +137,8 @@ public class BluetoothService extends IBluetooth.Stub {
     private static final ParcelUuid[] RFCOMM_UUIDS = {
             BluetoothUuid.Handsfree,
             BluetoothUuid.HSP,
-            BluetoothUuid.ObexObjectPush };
+            BluetoothUuid.ObexObjectPush,
+	    BluetoothUuid.MessageNotificationServer };
 
     private final BluetoothAdapterProperties mAdapterProperties;
     private final BluetoothDeviceProperties mDeviceProperties;
@@ -321,12 +322,10 @@ public class BluetoothService extends IBluetooth.Stub {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mBluetoothState = new BluetoothAdapterStateMachine(mContext, this, mAdapter);
         mBluetoothState.start();
-
         if (mContext.getResources().getBoolean
             (com.android.internal.R.bool.config_bluetooth_adapter_quick_switch)) {
             mBluetoothState.sendMessage(BluetoothAdapterStateMachine.TURN_HOT);
         }
-
         mEventLoop = mBluetoothState.getBluetoothEventLoop();
     }
 
@@ -591,6 +590,7 @@ public class BluetoothService extends IBluetooth.Stub {
         if (R.getBoolean(com.android.internal.R.bool.config_bluetooth_default_profiles)) {
             uuids.add(BluetoothUuid.HSP_AG);
             uuids.add(BluetoothUuid.ObexObjectPush);
+	    uuids.add(BluetoothUuid.MessageAccessServer);
         }
 
         if (R.getBoolean(com.android.internal.R.bool.config_voice_capable)) {
@@ -1735,18 +1735,17 @@ public class BluetoothService extends IBluetooth.Stub {
         }
     };
 
-    @SuppressWarnings("deprecation")
-	private void registerForAirplaneMode(IntentFilter filter) {
+    private void registerForAirplaneMode(IntentFilter filter) {
         final ContentResolver resolver = mContext.getContentResolver();
         final String airplaneModeRadios = Settings.System.getString(resolver,
-                Settings.Global.AIRPLANE_MODE_RADIOS);
+                Settings.System.AIRPLANE_MODE_RADIOS);
         final String toggleableRadios = Settings.System.getString(resolver,
-                Settings.Global.AIRPLANE_MODE_TOGGLEABLE_RADIOS);
+                Settings.System.AIRPLANE_MODE_TOGGLEABLE_RADIOS);
 
         mIsAirplaneSensitive = airplaneModeRadios == null ? true :
-                airplaneModeRadios.contains(Settings.Global.RADIO_BLUETOOTH);
+                airplaneModeRadios.contains(Settings.System.RADIO_BLUETOOTH);
         mIsAirplaneToggleable = toggleableRadios == null ? false :
-                toggleableRadios.contains(Settings.Global.RADIO_BLUETOOTH);
+                toggleableRadios.contains(Settings.System.RADIO_BLUETOOTH);
 
         if (mIsAirplaneSensitive) {
             filter.addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED);
@@ -1756,7 +1755,7 @@ public class BluetoothService extends IBluetooth.Stub {
     /* Returns true if airplane mode is currently on */
     /*package*/ final boolean isAirplaneModeOn() {
         return Settings.System.getInt(mContext.getContentResolver(),
-                Settings.Global.AIRPLANE_MODE_ON, 0) == 1;
+                Settings.System.AIRPLANE_MODE_ON, 0) == 1;
     }
 
     /* Broadcast the Uuid intent */
@@ -2450,8 +2449,8 @@ public class BluetoothService extends IBluetooth.Stub {
     void removeProfileState(String address) {
         BluetoothDeviceProfileState state = mDeviceProfileState.get(address);
         if (state == null) return;
-
-        state.doQuit();
+        // MR1 change
+        state.my_quit();
         mDeviceProfileState.remove(address);
     }
 
@@ -2759,11 +2758,10 @@ public class BluetoothService extends IBluetooth.Stub {
     private void readIncomingConnectionState() {
         synchronized(mIncomingConnections) {
             FileInputStream fstream = null;
-            BufferedReader file = null;
             try {
               fstream = new FileInputStream(INCOMING_CONNECTION_FILE);
               DataInputStream in = new DataInputStream(fstream);
-              file = new BufferedReader(new InputStreamReader(in));
+              BufferedReader file = new BufferedReader(new InputStreamReader(in));
               String line;
               while((line = file.readLine()) != null) {
                   line = line.trim();
@@ -2786,13 +2784,6 @@ public class BluetoothService extends IBluetooth.Stub {
                     } catch (IOException e) {
                         // Ignore
                     }
-                }
-                if (file != null) {
-                	try {
-                		file.close();
-                	} catch (IOException e) {
-                		// Ignore
-                	}
                 }
             }
         }

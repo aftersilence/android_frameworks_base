@@ -27,8 +27,11 @@ import android.os.RemoteException;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.android.internal.util.IState;
 import com.android.internal.util.State;
 import com.android.internal.util.StateMachine;
+
+import java.io.PrintWriter;
 
 /**
  * Bluetooth Adapter StateMachine
@@ -73,7 +76,7 @@ import com.android.internal.util.StateMachine;
  */
 final class BluetoothAdapterStateMachine extends StateMachine {
     private static final String TAG = "BluetoothAdapterStateMachine";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     // Message(what) to take an action
     //
@@ -148,51 +151,6 @@ final class BluetoothAdapterStateMachine extends StateMachine {
     private static final int TURN_OFF_TIMEOUT_TIME = 5000;
     private static final int POWER_DOWN_TIMEOUT_TIME = 20;
 
-   String getMsg(int msg_id) {
-        switch (msg_id) {
-            case -2:
-                return "SM_INIT_CMD";
-            case -1:
-                return "SM_QUIT_CMD";
-            case USER_TURN_ON:
-                return "USER_TURN_ON";
-            case USER_TURN_OFF:
-                return "USER_TURN_OFF";
-            case PER_PROCESS_TURN_ON:
-                return "PER_PROCESS_TURN_ON";
-            case PER_PROCESS_TURN_OFF:
-                return "PER_PROCESS_TURN_OFF";
-            case TURN_HOT:
-                return "TURN_HOT";
-            case SERVICE_RECORD_LOADED:
-                return "SERVICE_RECORD_LOADED";
-            case ALL_DEVICES_DISCONNECTED:
-                return "ALL_DEVICES_DISCONNECTED";
-            case SCAN_MODE_CHANGED:
-                return "SCAN_MODE_CHANGED";
-            case POWER_STATE_CHANGED:
-                return "POWER_STATE_CHANGED";
-            case AIRPLANE_MODE_ON:
-                return "AIRPLANE_MODE_ON";
-            case AIRPLANE_MODE_OFF:
-                return "AIRPLANE_MODE_OFF";
-            case TURN_ON_CONTINUE:
-                return "TURN_ON_CONTINUE";
-            case TURN_COLD:
-                return "TURN_COLD";
-            case DEVICES_DISCONNECT_TIMEOUT:
-                return "DEVICES_DISCONNECT_TIMEOUT";
-            case PREPARE_BLUETOOTH_TIMEOUT:
-                return "PREPARE_BLUETOOTH_TIMEOUT";
-            case TURN_OFF_TIMEOUT:
-                return "TURN_OFF_TIMEOUT";
-            case POWER_DOWN_TIMEOUT:
-                return "POWER_DOWN_TIMEOUT";
-            default:
-                return "UNKNOWN";
-        }
-    }
-
     BluetoothAdapterStateMachine(Context context, BluetoothService bluetoothService,
                                  BluetoothAdapter bluetoothAdapter) {
         super(TAG);
@@ -225,10 +183,11 @@ final class BluetoothAdapterStateMachine extends StateMachine {
     private class PowerOff extends State {
         @Override
         public void enter() {
-
+            if (DBG) log("Enter PowerOff: " + getCurrentMessage().what);
         }
         @Override
         public boolean processMessage(Message message) {
+            log("PowerOff process message: " + message.what);
 
             boolean retValue = HANDLED;
             switch(message.what) {
@@ -283,7 +242,7 @@ final class BluetoothAdapterStateMachine extends StateMachine {
                     perProcessCallback(false, (IBluetoothStateChangeCallback) message.obj);
                     break;
                 case USER_TURN_OFF:
-                    Log.w(TAG, getName() + " received: " + message.what);
+                    Log.w(TAG, "PowerOff received: " + message.what);
                 case AIRPLANE_MODE_ON: // ignore
                     break;
                 default:
@@ -305,10 +264,9 @@ final class BluetoothAdapterStateMachine extends StateMachine {
             }
 
             // try to start event loop, give 2 attempts
-            int retryCount = 3;
+            int retryCount = 2;
             boolean eventLoopStarted = false;
             while ((retryCount-- > 0) && !eventLoopStarted) {
-
                 mEventLoop.start();
                 // it may take a moment for the other thread to do its
                 // thing.  Check periodically for a while.
@@ -319,9 +277,9 @@ final class BluetoothAdapterStateMachine extends StateMachine {
                         break;
                     }
                     try {
-                        Thread.sleep(200);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
-
+                        log("prepareBluetooth sleep interrupted: " + pollCount);
                         break;
                     }
                 }
@@ -352,10 +310,12 @@ final class BluetoothAdapterStateMachine extends StateMachine {
 
         @Override
         public void enter() {
+            if (DBG) log("Enter WarmUp: " + getCurrentMessage().what);
         }
 
         @Override
         public boolean processMessage(Message message) {
+            log("WarmUp process message: " + message.what);
 
             boolean retValue = HANDLED;
             switch(message.what) {
@@ -383,7 +343,7 @@ final class BluetoothAdapterStateMachine extends StateMachine {
                     deferMessage(message);
                     break;
                 case USER_TURN_OFF:
-                    Log.w(TAG, "WarmUp received: " + getMsg(message.what));
+                    Log.w(TAG, "WarmUp received: " + message.what);
                     break;
                 default:
                     return NOT_HANDLED;
@@ -401,12 +361,12 @@ final class BluetoothAdapterStateMachine extends StateMachine {
     private class HotOff extends State {
         @Override
         public void enter() {
-
+            if (DBG) log("Enter HotOff: " + getCurrentMessage().what);
         }
 
         @Override
         public boolean processMessage(Message message) {
-
+            log("HotOff process message: " + message.what);
 
             boolean retValue = HANDLED;
             switch(message.what) {
@@ -477,11 +437,11 @@ final class BluetoothAdapterStateMachine extends StateMachine {
 
         @Override
         public void enter() {
-
+            if (DBG) log("Enter Switching: " + getCurrentMessage().what);
         }
         @Override
         public boolean processMessage(Message message) {
-
+            log("Switching process message: " + message.what);
 
             boolean retValue = HANDLED;
             switch(message.what) {
@@ -570,12 +530,11 @@ final class BluetoothAdapterStateMachine extends StateMachine {
 
         @Override
         public void enter() {
-
+            if (DBG) log("Enter BluetoothOn: " + getCurrentMessage().what);
         }
         @Override
         public boolean processMessage(Message message) {
-
-
+            log("BluetoothOn process message: " + message.what);
 
             boolean retValue = HANDLED;
             switch(message.what) {
@@ -613,7 +572,7 @@ final class BluetoothAdapterStateMachine extends StateMachine {
                     break;
                 case AIRPLANE_MODE_OFF:
                 case USER_TURN_ON:
-                    Log.w(TAG, getName() + " received: " + getMsg(message.what));
+                    Log.w(TAG, "BluetoothOn received: " + message.what);
                     break;
                 case PER_PROCESS_TURN_ON:
                     perProcessCallback(true, (IBluetoothStateChangeCallback)message.obj);
@@ -643,19 +602,20 @@ final class BluetoothAdapterStateMachine extends StateMachine {
         @Override
         public void enter() {
             int what = getCurrentMessage().what;
+            if (DBG) log("Enter PerProcessState: " + what);
 
             if (what == PER_PROCESS_TURN_ON) {
                 isTurningOn = true;
             } else if (what == USER_TURN_OFF) {
                 isTurningOn = false;
             } else {
-                Log.e(TAG, "Enter " + getName() + ": wrong msg: " + getMsg(what));
+                Log.e(TAG, "enter PerProcessState: wrong msg: " + what);
             }
         }
 
         @Override
         public boolean processMessage(Message message) {
-
+            log("PerProcessState process message: " + message.what);
 
             boolean retValue = HANDLED;
             switch (message.what) {
@@ -748,7 +708,7 @@ final class BluetoothAdapterStateMachine extends StateMachine {
                     allProcessesCallback(false);
                     break;
                 case USER_TURN_OFF:
-                    Log.w(TAG, getName() + " received: " + getMsg(message.what));
+                    Log.w(TAG, "PerProcessState received: " + message.what);
                     break;
                 default:
                     return NOT_HANDLED;
@@ -814,7 +774,7 @@ final class BluetoothAdapterStateMachine extends StateMachine {
 
     private void broadcastState(int newState) {
 
-
+        log("Bluetooth state " + mPublicState + " -> " + newState);
         if (mPublicState == newState) {
             return;
         }
@@ -833,9 +793,30 @@ final class BluetoothAdapterStateMachine extends StateMachine {
      * reset itself and try to return to previous state
      */
     private void recoverStateMachine(int what, Object obj) {
-        Log.e(TAG, "Get unexpected power on event, reset with: " + getMsg(what));
+        Log.e(TAG, "Get unexpected power on event, reset with: " + what);
         transitionTo(mHotOff);
         deferMessage(obtainMessage(TURN_COLD));
         deferMessage(obtainMessage(what, obj));
+    }
+
+    private void dump(PrintWriter pw) {
+        IState currentState = getCurrentState();
+        if (currentState == mPowerOff) {
+            pw.println("Bluetooth OFF - power down\n");
+        } else if (currentState == mWarmUp) {
+            pw.println("Bluetooth OFF - warm up\n");
+        } else if (currentState == mHotOff) {
+            pw.println("Bluetooth OFF - hot but off\n");
+        } else if (currentState == mSwitching) {
+            pw.println("Bluetooth Switching\n");
+        } else if (currentState == mBluetoothOn) {
+            pw.println("Bluetooth ON\n");
+        } else {
+            pw.println("ERROR: Bluetooth UNKNOWN STATE ");
+        }
+    }
+
+    private static void log(String msg) {
+        Log.d(TAG, msg);
     }
 }

@@ -133,7 +133,7 @@ class BluetoothBondState {
 
     /** reason is ignored unless state == BOND_NOT_BONDED */
     public synchronized void setBondState(String address, int state, int reason) {
-
+        if (DBG) Log.d(TAG, "setBondState " + "address" + " " + state + "reason: " + reason);
 
         int oldState = getBondState(address);
         if (oldState == state) {
@@ -165,6 +165,10 @@ class BluetoothBondState {
 
         setProfilePriorities(address, state);
 
+        if (DBG) {
+            Log.d(TAG, address + " bond state " + oldState + " -> " + state
+                + " (" + reason + ")");
+        }
         Intent intent = new Intent(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, mService.getRemoteDevice(address));
         intent.putExtra(BluetoothDevice.EXTRA_BOND_STATE, state);

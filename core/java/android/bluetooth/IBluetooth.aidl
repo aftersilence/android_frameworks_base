@@ -27,6 +27,7 @@ import android.os.ParcelFileDescriptor;
 /**
  * System private API for talking with the Bluetooth service.
  *
+ * {@hide}
  */
 interface IBluetooth
 {

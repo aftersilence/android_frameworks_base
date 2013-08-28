@@ -21,6 +21,7 @@ import android.bluetooth.BluetoothDevice;
 /**
  * APIs for Bluetooth A2DP service
  *
+ * @hide
  */
 interface IBluetoothA2dp {
     // Public API

@@ -153,6 +153,7 @@ public final class BluetoothA2dp implements BluetoothProfile {
      * @param device Remote Bluetooth Device
      * @return false on immediate error,
      *               true otherwise
+     * @hide
      */
     public boolean connect(BluetoothDevice device) {
         if (DBG) log("connect(" + device + ")");

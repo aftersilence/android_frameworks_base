@@ -42,7 +42,7 @@ import java.util.List;
  */
 class BluetoothEventLoop {
     private static final String TAG = "BluetoothEventLoop";
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
 
     private int mNativeData;
     private Thread mThread;
